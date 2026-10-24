@@ -1,0 +1,1343 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Departure Sale</title>
+<style>
+:root{--navy:#1f2937;--bg:#f3f4f6;--text:#111827;--muted:#64748b;--orange:#ea580c;--green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#2563eb}*{box-sizing:border-box}body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text)}header{background:var(--navy);color:#fff;text-align:center;padding:42px 20px}header h1{margin:0 0 10px;font-size:clamp(34px,6vw,52px)}header p{margin:5px 0;font-size:19px}.sub{font-size:15px;color:#d1d5db}.controls{position:sticky;top:0;z-index:10;background:#fff;padding:18px 20px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;box-shadow:0 2px 8px #0002}.controls input,.controls select{min-height:46px;padding:10px 14px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px;background:#fff}.controls input{width:min(330px,100%)}.summary{max-width:1250px;margin:auto;padding:22px 20px 0;display:flex;justify-content:space-between;gap:12px;align-items:center;font-weight:bold;color:#374151}.clear{padding:9px 13px;border:1px solid #cbd5e1;border-radius:7px;background:#fff;cursor:pointer}.grid{max-width:1250px;margin:auto;padding:22px 20px 50px;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:22px}.card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 14px #0002;position:relative;display:flex;flex-direction:column}.card.sold{opacity:.72}.gallery{position:relative;width:100%;height:300px;background:#fff;overflow:hidden}.photo{width:100%;height:300px;object-fit:contain;object-position:center;background:#fff;display:none;cursor:zoom-in}.placeholder{width:100%;height:300px;background:linear-gradient(135deg,#e5e7eb,#cbd5e1);display:flex;align-items:center;justify-content:center;text-align:center;color:#475569;padding:20px;font-weight:bold}.gallery-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:3;width:38px;height:38px;border:0;border-radius:50%;background:#1f2937cc;color:#fff;font-size:24px;cursor:pointer}.gallery-nav.prev{left:9px}.gallery-nav.next{right:9px}.gallery-count{position:absolute;right:10px;bottom:9px;z-index:3;padding:4px 8px;border-radius:999px;background:#1f2937cc;color:#fff;font-size:12px}.gallery-nav[hidden],.gallery-count[hidden]{display:none}.body{padding:17px;display:flex;flex-direction:column;flex:1}.category{align-self:flex-start;background:#eff6ff;color:#1d4ed8;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:bold;text-transform:uppercase}.body h2{margin:12px 0 8px;font-size:21px}.desc{color:var(--muted);line-height:1.45;flex:1;margin:0 0 12px;white-space:pre-line}.meta{display:grid;gap:5px;margin-bottom:13px;color:#475569;font-size:14px}.qty{font-weight:bold}.tentative{color:#1d4ed8;font-weight:bold}.price{color:var(--orange);font-size:22px;font-weight:bold;margin-bottom:14px}.per-unit{font-size:13px;color:#6b7280;font-weight:normal}.wa{display:block;padding:12px;border-radius:8px;background:var(--green);color:#fff;text-decoration:none;text-align:center;font-weight:bold}.status-button{padding:12px;border-radius:8px;background:#e5e7eb;color:#4b5563;text-align:center;font-weight:bold}.ribbon{position:absolute;z-index:4;right:-40px;top:18px;width:155px;color:#fff;text-align:center;font-weight:bold;padding:8px 0;transform:rotate(45deg);font-size:12px}.ribbon.sold{background:var(--red)}.ribbon.reserved{background:var(--amber)}.ribbon.upcoming{background:var(--blue)}.empty{grid-column:1/-1;padding:40px;background:#fff;border-radius:12px;text-align:center}footer{background:var(--navy);color:#fff;text-align:center;padding:28px 20px}
+.lightbox{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:25px;background:#000e}.lightbox.open{display:flex}.lightbox-image{max-width:calc(100vw - 100px);max-height:calc(100vh - 100px);object-fit:contain;background:#fff;border-radius:6px}.lb-close,.lb-prev,.lb-next{position:absolute;border:1px solid #ffffff66;border-radius:50%;background:#1f2937dd;color:#fff;cursor:pointer}.lb-close{top:15px;right:20px;width:48px;height:48px;font-size:31px}.lb-prev,.lb-next{top:50%;transform:translateY(-50%);width:52px;height:52px;font-size:34px}.lb-prev{left:20px}.lb-next{right:20px}.lb-caption{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);max-width:calc(100vw - 40px);padding:7px 14px;background:#1f2937dd;color:#fff;border-radius:20px;text-align:center;font-size:14px}.lb-prev[hidden],.lb-next[hidden]{display:none}body.lightbox-active{overflow:hidden}
+@media(max-width:700px){.controls{position:static;flex-direction:column;align-items:stretch}.controls input,.controls select{width:100%}.summary{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr;padding-left:15px;padding-right:15px}.lightbox-image{max-width:calc(100vw - 30px);max-height:calc(100vh - 110px)}.lb-prev,.lb-next{top:auto;bottom:54px}}
+</style></head><body>
+<header><h1>🏠 Departure Sale</h1><p>Everything must go before departure!</p><p class="sub">Pickup in Nairobi. Items with future dates have tentative availability.</p></header>
+<section class="controls"><input id="search" type="search" placeholder="Search item..."><select id="category"><option value="All">All categories</option></select><select id="statusFilter"><option value="current">Available now & upcoming</option><option value="available">Available now</option><option value="upcoming">Upcoming</option><option value="reserved">Reserved</option><option value="sold">Sold</option></select><select id="sort"><option value="default">Recommended</option><option value="low">Price: low to high</option><option value="high">Price: high to low</option><option value="name">Name: A to Z</option></select></section>
+<div class="summary"><div id="summary"></div><button id="clear" class="clear" type="button">Clear filters</button></div><main id="products" class="grid" aria-live="polite"></main>
+<div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged product picture"><button id="lbClose" class="lb-close" type="button" aria-label="Close">×</button><button id="lbPrev" class="lb-prev" type="button" aria-label="Previous">‹</button><img id="lbImage" class="lightbox-image" alt=""><button id="lbNext" class="lb-next" type="button" aria-label="Next">›</button><div id="lbCaption" class="lb-caption"></div></div>
+<footer><h2>Interested?</h2><p>Use the WhatsApp button to contact Christine.</p></footer>
+<script>
+const whatsappNumber="254707272379";const contactName="Christine";const products=[
+  {
+    "id": "app-01",
+    "name": "Air Fryer",
+    "category": "Appliances",
+    "price": 3000.0,
+    "description": "Selim German 4.5L Air Fryer (1400W) - NEW",
+    "quantity": 1,
+    "image": "images/app-01.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "app-02",
+    "name": "Smart TV Hisense 43\"",
+    "category": "Appliances",
+    "price": 17000.0,
+    "description": "Hisense 43\" A6 Series Smart Android TV",
+    "quantity": 1,
+    "image": "images/app-02.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "app-03",
+    "name": "Vegetable grater",
+    "category": "Appliances",
+    "price": 3000.0,
+    "description": "Moulinex Fresh Express 3-in-1 Electric",
+    "quantity": 1,
+    "image": "images/app-03.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "app-04",
+    "name": "Kitchen Scale",
+    "category": "Appliances",
+    "price": 1000.0,
+    "description": "Kitchen Scale",
+    "quantity": 1,
+    "image": "images/app-04.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "app-05",
+    "name": "Hair Dryer",
+    "category": "Appliances",
+    "price": 1800.0,
+    "description": "Hair Dryer Ramtoms",
+    "quantity": 1,
+    "image": "images/app-05.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "app-06",
+    "name": "Sandwich Maker",
+    "category": "Appliances",
+    "price": 2000.0,
+    "description": "Von Sandwich Maker (Model VSSP2YBGX)",
+    "quantity": 1,
+    "image": "images/app-06.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-01",
+    "name": "String Picture",
+    "category": "Decoration",
+    "price": 6000.0,
+    "description": "String Photo display with fairy light \nSize: Approx 80x120 cm",
+    "quantity": 1,
+    "image": "images/deco-01.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "deco-02",
+    "name": "Empty Frame",
+    "category": "Decoration",
+    "price": 2000.0,
+    "description": "Empty Frame - Size: Approx 70 x 100 cm (without Joker)",
+    "quantity": 1,
+    "image": "images/deco-02.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-03",
+    "name": "Kraft photo hanging",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Atmosphere Kraft Photo Hanging Garland Kit (10 Frames)",
+    "quantity": 4,
+    "image": "images/deco-03.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-04",
+    "name": "Vertical hanging frame",
+    "category": "Decoration",
+    "price": 1800.0,
+    "description": "Atmosphera 3-Photo Vertical Hanging Frame",
+    "quantity": 1,
+    "image": "images/deco-04.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-05",
+    "name": "Masai Painting",
+    "category": "Decoration",
+    "price": 15000.0,
+    "description": "Masai Painting - 101 x 143 cm",
+    "quantity": 1,
+    "image": "images/deco-05.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-06",
+    "name": "Framed poster",
+    "category": "Decoration",
+    "price": 3000.0,
+    "description": "Framed Vintage Mount Kenya National Park Travel Poster (with Glass) - Size: Approx 100x140 cm",
+    "quantity": 1,
+    "image": "images/deco-06.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-07",
+    "name": "Framed Marvel Puzzle",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Marvel framed puzzle behind glass (permanently glue)",
+    "quantity": 1,
+    "image": "images/deco-07.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-08",
+    "name": "Handcrafted Mirror",
+    "category": "Decoration",
+    "price": 4000.0,
+    "description": "Unique Handcrafted Wall Mirror",
+    "quantity": 1,
+    "image": "images/deco-08.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "deco-09",
+    "name": "Diamond painting kit - NEW",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Diamond Painting Kit “Coffee & Pastries”",
+    "quantity": 1,
+    "image": "images/deco-09.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-10",
+    "name": "Light Shade - Model A",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Africa Kitenge Light Shade – Model A",
+    "quantity": 2,
+    "image": "images/deco-10.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "deco-11",
+    "name": "Light Shade - Model B",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Africa Kitenge Light Shade – Model B",
+    "quantity": 2,
+    "image": "images/deco-11.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "deco-12",
+    "name": "Light Shade - Model C",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Africa Kitenge Light Shade – Model C",
+    "quantity": 1,
+    "image": "images/deco-12.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "deco-13",
+    "name": "Set 7 mini easel",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Set of 7 Mini Wooden Tabletop Display Easels",
+    "quantity": 1,
+    "image": "images/deco-13.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-14",
+    "name": "Glass Vase",
+    "category": "Decoration",
+    "price": 1200.0,
+    "description": "Glass Vase",
+    "quantity": 1,
+    "image": "images/deco-14.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-15",
+    "name": "Woven basket",
+    "category": "Decoration",
+    "price": 1500.0,
+    "description": "Woven basket",
+    "quantity": 1,
+    "image": "images/deco-15.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-16",
+    "name": "Fan - Model 1",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-16.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-17",
+    "name": "Fan - Model 2",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-17.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-18",
+    "name": "Fan - Model 3",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-18.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-19",
+    "name": "Fan - Model 4",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-19.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-20",
+    "name": "Fan - Model 5",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-20.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-21",
+    "name": "Fan - Model 6",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-21.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-22",
+    "name": "Fan - Model 7",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-22.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-23",
+    "name": "Fan - Model 8",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-23.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-24",
+    "name": "Fan - Model 9",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-24.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-25",
+    "name": "Fan - Model 10",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-25.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "deco-26",
+    "name": "Fan - Model 11",
+    "category": "Decoration",
+    "price": 1000.0,
+    "description": "Handcraft Kitenge Fans – NEW",
+    "quantity": 1,
+    "image": "images/deco-26.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-01",
+    "name": "Barcelona - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "Educa Puzzle - Barcelona - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-01.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-02",
+    "name": "Desert - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "Educa Puzzle - Desert - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-02.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-03",
+    "name": "Aurora - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "Educa Puzzle - Aurora Borealis - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-03.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-04",
+    "name": "Lanterns - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "ZigZag Lanterns - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-04.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-05",
+    "name": "Prague - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "World smallest Prague - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-05.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-06",
+    "name": "Amsterdam - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "Cultura Amsterdam 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-06.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-07",
+    "name": "King Celebration - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "King celebreation - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-07.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-08",
+    "name": "London - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "World smallest London - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-08.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-09",
+    "name": "Santorin - 1000 pcs",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "World smallest Santorin - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-09.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-10",
+    "name": "Escape Puzzle Kitchen",
+    "category": "Puzzle",
+    "price": 2000.0,
+    "description": "Ravensburger Escape Puzzle \"Witch kitchen\" - 759 pcs",
+    "quantity": 1,
+    "image": "images/puz-10.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-11",
+    "name": "Escape Puzzle Wolves",
+    "category": "Puzzle",
+    "price": 2000.0,
+    "description": "Ravensburger Escape Puzzle \"Wolves\" - 759 pcs",
+    "quantity": 1,
+    "image": "images/puz-11.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-12",
+    "name": "Wasgij  - 1000 pcs",
+    "category": "Puzzle",
+    "price": 2000.0,
+    "description": "Wasgij - Imagine - 1000 pcs (image different from model)",
+    "quantity": 1,
+    "image": "images/puz-12.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-13",
+    "name": "Puzzle set Stranger Things",
+    "category": "Puzzle",
+    "price": 3000.0,
+    "description": "Stranger Things (2 x 1000 pcs + 1 x 500 pcs)",
+    "quantity": 1,
+    "image": "images/puz-13.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-14",
+    "name": "Puzzle set Harry Potter",
+    "category": "Puzzle",
+    "price": 3000.0,
+    "description": "Harry Potter (2 x 1000 pcs + 1 x 500 pcs)",
+    "quantity": 1,
+    "image": "images/puz-14.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-15",
+    "name": "Paris - 1000 pcs",
+    "category": "Puzzle",
+    "price": 800.0,
+    "description": "Paris Eiffel Jigsaw - 1000 pcs",
+    "quantity": 1,
+    "image": "images/puz-15.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-16",
+    "name": "World map - 2000 pcs",
+    "category": "Puzzle",
+    "price": 1000.0,
+    "description": "Educa World map - 2000 pcs (missing 1 pc)",
+    "quantity": 1,
+    "image": "images/puz-16.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-17",
+    "name": "Machu Pichu - 500 pcs",
+    "category": "Puzzle",
+    "price": 1000.0,
+    "description": "Trefl Machu Pichu -500 pcs",
+    "quantity": 1,
+    "image": "images/puz-17.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-18",
+    "name": "Roll-up Puzzle",
+    "category": "Puzzle",
+    "price": 1500.0,
+    "description": "Roll-up",
+    "quantity": 1,
+    "image": "images/puz-18.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "puz-19",
+    "name": "Hot Air Balloon - 1500 pcs",
+    "category": "Puzzle",
+    "price": 2000.0,
+    "description": "Hot Air Balloon - 1500 pcs",
+    "quantity": 1,
+    "image": "images/puz-19.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-01",
+    "name": "Wood Bench",
+    "category": "Furniture",
+    "price": 8000.0,
+    "description": "Wood Bench with metal legs",
+    "quantity": 1,
+    "image": "images/fur-01.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-02",
+    "name": "Heavy Wood Bench",
+    "category": "Furniture",
+    "price": 15000.0,
+    "description": "Heavy Wood Bench with metal legs",
+    "quantity": 1,
+    "image": "images/fur-02.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-03",
+    "name": "Rattan Shelf",
+    "category": "Furniture",
+    "price": 5000.0,
+    "description": "Woven Rattan 3-Tier Shelf",
+    "quantity": 1,
+    "image": "images/fur-03.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-04",
+    "name": "Woven trunk",
+    "category": "Furniture",
+    "price": 4500.0,
+    "description": "Woven Trunk with lid",
+    "quantity": 1,
+    "image": "images/fur-04.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-05",
+    "name": "Laundry Hamper",
+    "category": "Furniture",
+    "price": 3000.0,
+    "description": "Laundry Hamper with Lid",
+    "quantity": 1,
+    "image": "images/fur-05.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-06",
+    "name": "Adjustable Mobile Laptop Desk",
+    "category": "Furniture",
+    "price": 2500.0,
+    "description": "Adjustable Mobile Laptop Desk",
+    "quantity": 1,
+    "image": "images/fur-06.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-07",
+    "name": "Pallet Furniture Cushion",
+    "category": "Furniture",
+    "price": 2000.0,
+    "description": "Pallet Furniture Cushion",
+    "quantity": 3,
+    "image": "images/fur-07.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-08",
+    "name": "Storage Basket",
+    "category": "Furniture",
+    "price": 2000.0,
+    "description": "Storage Basket with Handles",
+    "quantity": 1,
+    "image": "images/fur-08.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-09",
+    "name": "Coffee table - Model A",
+    "category": "Furniture",
+    "price": 5000.0,
+    "description": "Coffee table - Model A",
+    "quantity": 1,
+    "image": "images/fur-09.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-10",
+    "name": "Coffee table - Model B",
+    "category": "Furniture",
+    "price": 5000.0,
+    "description": "Coffee table - Model B",
+    "quantity": 1,
+    "image": "images/fur-10.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-11",
+    "name": "White bean bag (1 person)",
+    "category": "Furniture",
+    "price": 3000.0,
+    "description": "White bean bag (1 person)",
+    "quantity": 1,
+    "image": "images/fur-11.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "fur-12",
+    "name": "Table - glass top",
+    "category": "Furniture",
+    "price": 5000.0,
+    "description": "Side Table with Glass Top",
+    "quantity": 1,
+    "image": "images/fur-12.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-13",
+    "name": "Wooden Storage Crate",
+    "category": "Furniture",
+    "price": 1000.0,
+    "description": "Wooden Storage Crate",
+    "quantity": 2,
+    "image": "images/fur-13.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-14",
+    "name": "Wooden Crate Shoe Rack",
+    "category": "Furniture",
+    "price": 1300.0,
+    "description": "Wooden Crate Shoe Rack",
+    "quantity": 2,
+    "image": "images/fur-14.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-15",
+    "name": "L-Shape Couch",
+    "category": "Furniture",
+    "price": 70000.0,
+    "description": "L-Shape Couch",
+    "quantity": 1,
+    "image": "images/fur-15.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-16",
+    "name": "Large Bean bag (2 person)",
+    "category": "Furniture",
+    "price": 10000.0,
+    "description": "Large Bean bag (2 person)",
+    "quantity": 1,
+    "image": "images/fur-16.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-17",
+    "name": "Rustic Shoe Rack",
+    "category": "Furniture",
+    "price": 12000.0,
+    "description": "Rustic Shoe Rack",
+    "quantity": 1,
+    "image": "images/fur-17.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "fur-18",
+    "name": "Coffee table on Wheel",
+    "category": "Furniture",
+    "price": 10000.0,
+    "description": "Coffee table on Wheel",
+    "quantity": 1,
+    "image": "images/fur-18.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-01",
+    "name": "Tennis Racket",
+    "category": "Outdoor & Leisure",
+    "price": 3500.0,
+    "description": "Tennis Racket Gamma",
+    "quantity": 1,
+    "image": "images/out-01.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-02",
+    "name": "Pack - Inline Skate",
+    "category": "Outdoor & Leisure",
+    "price": 8500.0,
+    "description": "Inline Skate Decathlon pack with protective gear",
+    "quantity": 1,
+    "image": "images/out-02.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-03",
+    "name": "Travel Case - Switch 2",
+    "category": "Outdoor & Leisure",
+    "price": 2000.0,
+    "description": "Belkin Gaming Travel Case (pour Nintendo Switch 2)",
+    "quantity": 1,
+    "image": "images/out-03.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-04",
+    "name": "Pump Hand",
+    "category": "Outdoor & Leisure",
+    "price": 500.0,
+    "description": "Pump Hand",
+    "quantity": 1,
+    "image": "images/out-04.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-05",
+    "name": "Sleeping Bag - 10 degrees",
+    "category": "Outdoor & Leisure",
+    "price": 2500.0,
+    "description": "Decathlon Quechua Arpenaz 10° Sleeping Bag – Like New",
+    "quantity": 1,
+    "image": "images/out-05.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-06",
+    "name": "Sleeping Bag - 15 degrees",
+    "category": "Outdoor & Leisure",
+    "price": 2000.0,
+    "description": "Decathlon Quechua Arpenaz 15° Sleeping Bag – Like New",
+    "quantity": 1,
+    "image": "images/out-06.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-07",
+    "name": "Decathlon Air Mattress",
+    "category": "Outdoor & Leisure",
+    "price": 2500.0,
+    "description": "Decathlon Quechua Air Basic 120 Inflatable Camping Mattress – Like New",
+    "quantity": 1,
+    "image": "images/out-07.jpg",
+    "availability": "Now",
+    "status": "sold"
+  },
+  {
+    "id": "out-08",
+    "name": "Decathlon Tent - MH100",
+    "category": "Outdoor & Leisure",
+    "price": 7500.0,
+    "description": "Decathlon Quechua MH100 Fresh & Black 2-Person Tent – Used Once",
+    "quantity": 1,
+    "image": "images/out-08.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-09",
+    "name": "Claw hammer",
+    "category": "Outdoor & Leisure",
+    "price": 1200.0,
+    "description": "Claw hammer",
+    "quantity": 1,
+    "image": "images/out-09.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-10",
+    "name": "Lunch Cooler",
+    "category": "Outdoor & Leisure",
+    "price": 1000.0,
+    "description": "Decathlon Quechua Soft Lunch Cooler Bag",
+    "quantity": 1,
+    "image": "images/out-10.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-11",
+    "name": "Rugby Ball",
+    "category": "Outdoor & Leisure",
+    "price": 1500.0,
+    "description": "Rugby Ball",
+    "quantity": 1,
+    "image": "images/out-11.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "out-12",
+    "name": "Padel Racket",
+    "category": "Outdoor & Leisure",
+    "price": 3500.0,
+    "description": "Padel Rack Model A - Kuikma Open",
+    "quantity": 1,
+    "image": "images/out-12.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "out-13",
+    "name": "Padel Racket",
+    "category": "Outdoor & Leisure",
+    "price": 3500.0,
+    "description": "Padel Rack Model B - Kuikma PR 190",
+    "quantity": 1,
+    "image": "images/out-13.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "out-14",
+    "name": "Set of dumbbell – 22kg",
+    "category": "Outdoor & Leisure",
+    "price": 6000.0,
+    "description": "Set of dumbbell – 22kg (4 x 1kg, 8 x2kg, 2kg for bars)",
+    "quantity": 1,
+    "image": "images/out-14.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-01",
+    "name": "Tea Pot",
+    "category": "Kitchen",
+    "price": 1500.0,
+    "description": "Premium Japanese-Style Ceramic Teapot",
+    "quantity": 1,
+    "image": "images/kit-01.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-02",
+    "name": "Serving Tray",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Large Oval Woven Wicker Serving Tray",
+    "quantity": 1,
+    "image": "images/kit-02.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-03",
+    "name": "Cake Plate",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Cake Plate",
+    "quantity": 1,
+    "image": "images/kit-03.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-04",
+    "name": "Strainer",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Strainer",
+    "quantity": 1,
+    "image": "images/kit-04.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-05",
+    "name": "Set of 2 Mixing bowls",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Set of 2 Mixing bowls",
+    "quantity": 1,
+    "image": "images/kit-05.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-06",
+    "name": "Set of 2 serving bowls",
+    "category": "Kitchen",
+    "price": 800.0,
+    "description": "Set of 2 serving bowls",
+    "quantity": 1,
+    "image": "images/kit-06.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-07",
+    "name": "Set of 6 plates",
+    "category": "Kitchen",
+    "price": 1500.0,
+    "description": "Set of 6 plates",
+    "quantity": 1,
+    "image": "images/kit-07.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-08",
+    "name": "Set of 2 plates",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Set of 2 plates",
+    "quantity": 1,
+    "image": "images/kit-08.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-09",
+    "name": "Set of 5 meat knives",
+    "category": "Kitchen",
+    "price": 800.0,
+    "description": "Set of 5 meat knives",
+    "quantity": 1,
+    "image": "images/kit-09.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-10",
+    "name": "Set of kitchen utensils",
+    "category": "Kitchen",
+    "price": 800.0,
+    "description": "Set of kitchen utensils",
+    "quantity": 1,
+    "image": "images/kit-10.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-11",
+    "name": "DIY Popsicle Mold Set",
+    "category": "Kitchen",
+    "price": 600.0,
+    "description": "DIY Popsicle Mold Set",
+    "quantity": 1,
+    "image": "images/kit-11.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-12",
+    "name": "Ice Cream Scooper",
+    "category": "Kitchen",
+    "price": 600.0,
+    "description": "Ice Cream Scooper",
+    "quantity": 1,
+    "image": "images/kit-12.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-13",
+    "name": "Set of 4 espresso cups",
+    "category": "Kitchen",
+    "price": 1500.0,
+    "description": "Set of 4 espresso cups",
+    "quantity": 1,
+    "image": "images/kit-13.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-14",
+    "name": "Set of 4 water glasses",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Set of 4 water glasses",
+    "quantity": 1,
+    "image": "images/kit-14.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-15",
+    "name": "Set of snacks bowls",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Set of snacks bowls",
+    "quantity": 1,
+    "image": "images/kit-15.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-16",
+    "name": "Cutlery holder",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Cutlery holder",
+    "quantity": 1,
+    "image": "images/kit-16.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-17",
+    "name": "Set of 2 serving trays",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Set of 2 serving trays",
+    "quantity": 1,
+    "image": "images/kit-17.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-18",
+    "name": "black appetizer/verrine cups",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "black appetizer/verrine cups",
+    "quantity": 1,
+    "image": "images/kit-18.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-19",
+    "name": "Sufuria",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Sufuria",
+    "quantity": 1,
+    "image": "images/kit-19.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-20",
+    "name": "Juicer",
+    "category": "Kitchen",
+    "price": 800.0,
+    "description": "Juicer",
+    "quantity": 1,
+    "image": "images/kit-20.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-21",
+    "name": "Set of Reusable Silicone Cupcake",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Set of Reusable Silicone Cupcake",
+    "quantity": 1,
+    "image": "images/kit-21.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-22",
+    "name": "Muffin baking pan",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Muffin baking pan",
+    "quantity": 1,
+    "image": "images/kit-22.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-23",
+    "name": "Rectangle Loaf Pan – Model A",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Rectangle Loaf Pan – Model A",
+    "quantity": 1,
+    "image": "images/kit-23.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-24",
+    "name": "Rectangle Loaf Pan – Model B",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Rectangle Loaf Pan – Model B",
+    "quantity": 1,
+    "image": "images/kit-24.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-25",
+    "name": "Set of 2 Round tarts",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Set of 2 Round tarts",
+    "quantity": 1,
+    "image": "images/kit-25.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-26",
+    "name": "Round tart Model A",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Round tart Model A",
+    "quantity": 1,
+    "image": "images/kit-26.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-27",
+    "name": "Round tart Model B",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Round tart Model B",
+    "quantity": 1,
+    "image": "images/kit-27.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-28",
+    "name": "Round Cake",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Round Cake",
+    "quantity": 1,
+    "image": "images/kit-28.jpg",
+    "availability": "Mid-December",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-29",
+    "name": "Baking Pan with Quick-Release Latch",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Baking Pan with Quick-Release Latch",
+    "quantity": 1,
+    "image": "images/kit-29.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-30",
+    "name": "Baking Set",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Complete Baking Measurement Set – Silicone Mat, Cups & Spoons",
+    "quantity": 1,
+    "image": "images/kit-30.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-31",
+    "name": "Tartlet Baking pan",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Tartlet Baking pan",
+    "quantity": 1,
+    "image": "images/kit-31.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-32",
+    "name": "Decorating Pen set",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Decorating Pen set",
+    "quantity": 1,
+    "image": "images/kit-32.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-33",
+    "name": "Kitchen Thermometers",
+    "category": "Kitchen",
+    "price": 1500.0,
+    "description": "Kitchen Thermometers (Digital and Analog)",
+    "quantity": 1,
+    "image": "images/kit-33.jpg",
+    "availability": "Now",
+    "status": "available"
+  },
+  {
+    "id": "kit-34",
+    "name": "Set of cookie cutters",
+    "category": "Kitchen",
+    "price": 1000.0,
+    "description": "Set of cookie cutters",
+    "quantity": 1,
+    "image": "images/kit-34.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  },
+  {
+    "id": "kit-35",
+    "name": "Plastic measuring jug",
+    "category": "Kitchen",
+    "price": 500.0,
+    "description": "Plastic measuring jug",
+    "quantity": 1,
+    "image": "images/kit-35.jpg",
+    "availability": "Beg-Jan",
+    "status": "upcoming"
+  }
+];
+const search=document.getElementById('search'),category=document.getElementById('category'),statusFilter=document.getElementById('statusFilter'),sort=document.getElementById('sort'),productsEl=document.getElementById('products'),summary=document.getElementById('summary'),clear=document.getElementById('clear');const publicProducts=products.filter(p=>p.status!=='hidden');
+[...new Set(publicProducts.map(p=>p.category))].sort().forEach(c=>{const o=document.createElement('option');o.value=c;o.textContent=c;category.appendChild(o)});function esc(v){return String(v??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]))}function imageExists(src){return new Promise(r=>{const i=new Image();i.onload=()=>r(src);i.onerror=()=>r(null);i.src=src})}
+const lightbox=document.getElementById('lightbox'),lbImage=document.getElementById('lbImage'),lbClose=document.getElementById('lbClose'),lbPrev=document.getElementById('lbPrev'),lbNext=document.getElementById('lbNext'),lbCaption=document.getElementById('lbCaption');let lbPictures=[],lbIndex=0,lbName='';function updateLB(){lbImage.src=lbPictures[lbIndex];lbImage.alt=`${lbName}, picture ${lbIndex+1}`;lbCaption.textContent=`${lbName} | ${lbIndex+1} / ${lbPictures.length}`;const m=lbPictures.length>1;lbPrev.hidden=!m;lbNext.hidden=!m}function openLB(pics,i,name){lbPictures=pics;lbIndex=i;lbName=name;updateLB();lightbox.classList.add('open');document.body.classList.add('lightbox-active')}function closeLB(){lightbox.classList.remove('open');document.body.classList.remove('lightbox-active');lbImage.src=''}function lbMove(d){lbIndex=(lbIndex+d+lbPictures.length)%lbPictures.length;updateLB()}lbClose.onclick=closeLB;lbPrev.onclick=()=>lbMove(-1);lbNext.onclick=()=>lbMove(1);lightbox.onclick=e=>{if(e.target===lightbox)closeLB()};document.addEventListener('keydown',e=>{if(!lightbox.classList.contains('open'))return;if(e.key==='Escape')closeLB();if(e.key==='ArrowLeft'&&lbPictures.length>1)lbMove(-1);if(e.key==='ArrowRight'&&lbPictures.length>1)lbMove(1)});
+function loadImage(src){return new Promise(resolve=>{const img=new Image();img.onload=()=>resolve(true);img.onerror=()=>resolve(false);img.src=src})}
+async function initGallery(p,index){
+  const g=document.getElementById(`gallery-${index}`);if(!g)return;
+  const main=g.querySelector('.photo'),ph=g.querySelector('.placeholder'),prev=g.querySelector('.prev'),next=g.querySelector('.next'),count=g.querySelector('.gallery-count');
+  const m=p.image.match(/^(.*?)(\.[^.\/]+)$/);if(!m){ph.textContent=`Photo unavailable - ${p.name}`;return}
+  const exact=p.image, numbered=[`${m[1]}-1${m[2]}`,`${m[1]}-2${m[2]}`,`${m[1]}-3${m[2]}`];
+  let images=[],current=0,testedTo=0,numberedMode=false;
+  if(await loadImage(numbered[0])){images=[numbered[0]];numberedMode=true;testedTo=1}
+  else if(await loadImage(exact)){images=[exact];testedTo=3}
+  else{ph.textContent=`Photo unavailable - ${p.name}`;return}
+  async function ensureNext(){
+    if(!numberedMode||testedTo>=3)return false;
+    const candidate=numbered[testedTo];testedTo++;
+    if(await loadImage(candidate)){images.push(candidate);return true}
+    testedTo=3;return false
+  }
+  function updateControls(){
+    count.textContent=`${current+1} / ${testedTo>=3?images.length:Math.min(3,images.length+1)}`;
+    count.hidden=false;prev.hidden=images.length<=1&&current===0;next.hidden=!numberedMode||(testedTo>=3&&current>=images.length-1)
+  }
+  function show(){main.src=images[current];main.style.display='block';ph.style.display='none';updateControls();main.onclick=()=>openLB(images,current,p.name);main.tabIndex=0;main.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openLB(images,current,p.name)}}}
+  prev.onclick=()=>{if(images.length>1){current=(current-1+images.length)%images.length;show()}};
+  next.onclick=async()=>{if(current<images.length-1){current++;show();return}if(await ensureNext()){current++;show()}else{updateControls()}};
+  show()
+}
+function matchStatus(p){const v=statusFilter.value;if(v==='current')return ['available','upcoming','reserved'].includes(p.status);return p.status===v}function render(){const term=search.value.trim().toLowerCase();let list=publicProducts.filter(p=>`${p.name} ${p.description}`.toLowerCase().includes(term)&&(category.value==='All'||p.category===category.value)&&matchStatus(p));if(sort.value==='low')list.sort((a,b)=>a.price-b.price);if(sort.value==='high')list.sort((a,b)=>b.price-a.price);if(sort.value==='name')list.sort((a,b)=>a.name.localeCompare(b.name));const counts={available:0,upcoming:0,reserved:0,sold:0};publicProducts.forEach(p=>{if(counts[p.status]!==undefined)counts[p.status]++});summary.textContent=`${list.length} shown | ${counts.available} available now | ${counts.upcoming} upcoming | ${counts.reserved} reserved | ${counts.sold} sold`;if(!list.length){productsEl.innerHTML='<div class="empty"><h2>No items found</h2><p>Try another filter.</p></div>';return}productsEl.innerHTML=list.map((p,i)=>{const msg=encodeURIComponent(`Hello ${contactName}, I am interested in ${p.name}, listed at KES ${Number(p.price).toLocaleString('en-KE')}${p.quantity>1?' per unit':''}. Is it still available?`);const ribbon=p.status==='sold'?'<div class="ribbon sold">SOLD</div>':p.status==='reserved'?'<div class="ribbon reserved">RESERVED</div>':p.status==='upcoming'?'<div class="ribbon upcoming">COMING SOON</div>':'';const action=['available','upcoming'].includes(p.status)?`<a class="wa" target="_blank" rel="noopener" href="https://wa.me/${whatsappNumber}?text=${msg}">Contact Christine on WhatsApp</a>`:`<div class="status-button">This item is ${esc(p.status)}</div>`;const availability=p.status==='upcoming'?`<div class="tentative">Tentative availability: ${esc(p.availability)}</div>`:(p.availability&&p.availability.toLowerCase()!=='now'?`<div>Availability: ${esc(p.availability)}</div>`:'');return `<article class="card ${p.status==='sold'?'sold':''}">${ribbon}<div id="gallery-${i}" class="gallery"><img class="photo" loading="lazy" decoding="async" alt="${esc(p.name)}"><div class="placeholder">Loading photo...</div><button class="gallery-nav prev" type="button" hidden>‹</button><button class="gallery-nav next" type="button" hidden>›</button><span class="gallery-count" hidden></span></div><div class="body"><div class="category">${esc(p.category)}</div><h2>${esc(p.name)}</h2><p class="desc">${esc(p.description)}</p><div class="meta">${p.quantity>1?`<div class="qty">Quantity available: ${p.quantity}</div>`:''}${availability}</div><div class="price">KES ${Number(p.price).toLocaleString('en-KE')} ${p.quantity>1?'<span class="per-unit">per unit</span>':''}</div>${action}</div></article>`}).join('');list.forEach((p,i)=>initGallery(p,i))}
+[search,category,statusFilter,sort].forEach(el=>el.addEventListener(el===search?'input':'change',render));clear.onclick=()=>{search.value='';category.value='All';statusFilter.value='current';sort.value='default';render()};render();
+</script></body></html>
